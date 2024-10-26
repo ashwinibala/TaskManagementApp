@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useSelector } from 'react-redux';
 import AppNavbar from './components/AppNavbar';
 import Login from './components/Login';
-import TaskList from './components/TaskList';
+import MainTaskView from './components/MainTaskView';
 
 function PrivateRoute({ children }) {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -20,7 +20,7 @@ function App() {
           path="/tasks"
           element={
             <PrivateRoute>
-              <TaskList />
+              <MainTaskView />
             </PrivateRoute>
           }
         />

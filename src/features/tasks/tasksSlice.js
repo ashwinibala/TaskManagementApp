@@ -10,6 +10,11 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
     return response.data.tasks;
 });
 
+export const fetchTaskById = createAsyncThunk('tasks/fetchTaskById', async (taskId) => {
+    const response = await api.get(`/tasks/${taskId}`);
+    return response.data;
+});
+
 export const addTask = createAsyncThunk('tasks/addTask', async (taskData) => {
     const response = await api.post('/tasks', taskData, {
         headers: {
@@ -30,6 +35,15 @@ export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId) =>
 
 export const updateTaskStatus = createAsyncThunk('tasks/updateTaskStatus', async ({ id, status }) => {
     const response = await api.put(`/tasks/${id}`, { status }, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+    return response.data;
+});
+
+export const updateTask = createAsyncThunk('tasks/updateTask', async ({ id, title, description, status }) => {
+    const response = await api.put(`/tasks/${id}`, { title, description, status }, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

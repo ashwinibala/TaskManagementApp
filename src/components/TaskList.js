@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, deleteTask, updateTaskStatus } from '../features/tasks/tasksSlice';
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Modal } from 'react-bootstrap';
+import { FaPlus, FaTimes } from 'react-icons/fa';
 import './TaskList.css';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import AddTaskForm from './AddTaskForm';
@@ -9,24 +10,28 @@ import AddTaskForm from './AddTaskForm';
 function TaskList() {
     const dispatch = useDispatch();
     const { tasks, loading, error } = useSelector((state) => state.tasks);
-
+    const [editingTask, setEditingTask] = useState(null);
     const [showAddTask, setShowAddTask] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState(null);
 
-    useEffect(() => {
+    const refreshTasks = () => {
         dispatch(fetchTasks())
             .unwrap()
             .then(() => console.log("Tasks fetched successfully"))
             .catch((err) => console.error("Error fetching tasks:", err));
+    };
+
+    useEffect(() => {
+        refreshTasks();
     }, [dispatch]);
 
     const handleDelete = (id) => {
         dispatch(deleteTask(id))
             .unwrap()
-            .then(() => {
-                dispatch(fetchTasks());
-            })
+            .then(() => refreshTasks())
             .catch((error) => {
-                console.error("Failed to delete task status:", error);
+                console.error("Failed to delete task:", error);
             });
     };
 
@@ -42,17 +47,34 @@ function TaskList() {
         };
         dispatch(updateTaskStatus(updatedTask))
             .unwrap()
-            .then(() => {
-                dispatch(fetchTasks());
-            })
+            .then(() => refreshTasks())
             .catch((error) => {
                 console.error("Failed to update task status:", error);
             });
     };
 
-    const handleClose = () => setShowAddTask(false);
-    const handleShow = () => setShowAddTask(true);
+    const handleClose = () => {
+        setShowAddTask(false);
+        setEditingTask(null);
+    };
 
+    const handleCardClick = (task) => {
+        setEditingTask(task);
+        setShowAddTask(true);
+    };
+
+    const handleDeleteClick = (task) => {
+        setTaskToDelete(task);
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
+        if (taskToDelete) {
+            handleDelete(taskToDelete.id);
+            setShowDeleteConfirm(false);
+            setTaskToDelete(null);
+        }
+    };
 
     if (loading) {
         return <div className="text-center"><h3>Loading...</h3></div>;
@@ -70,13 +92,15 @@ function TaskList() {
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mb-4">Task List</h2>
-            <div className="text-center mb-3">
-                <Button variant="primary" onClick={handleShow} className="mb-3" style={{ width: '100px' }}>
-                    Add Task
-                </Button>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="text-center">Task List</h2>
+                <FaPlus
+                    size={30}
+                    style={{ cursor: 'pointer', color: '#007bff' }}
+                    onClick={() => setShowAddTask(true)}
+                />
             </div>
-            <AddTaskForm show={showAddTask} handleClose={handleClose} />
+            <AddTaskForm show={showAddTask} handleClose={handleClose} editingTask={editingTask} />
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="row">
                     {Object.entries(groupedTasks).map(([status]) => (
@@ -90,13 +114,28 @@ function TaskList() {
                                         groupedTasks[status].map((task, index) => (
                                             <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                                                 {(provided) => (
-                                                    <Card className="mb-3" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                        <Card.Body>
-                                                            <Card.Title>{task.title}</Card.Title>
-                                                            <Card.Text>{task.description}</Card.Text>
-                                                            <div className="d-flex justify-content-between">
-                                                                <Button variant="danger" onClick={() => handleDelete(task.id)}>Delete</Button>
+                                                    <Card
+                                                        className="mb-3"
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        onClick={() => handleCardClick(task)}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        <Card.Body className="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <Card.Title>{task.title}</Card.Title>
+                                                                <Card.Text>{task.description}</Card.Text>
                                                             </div>
+                                                            <FaTimes
+                                                                size={20}
+                                                                style={{ cursor: 'pointer', color: 'red' }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation(); // Prevent triggering the edit task
+                                                                    handleDeleteClick(task);
+                                                                }}
+                                                                title="Delete Task"
+                                                            />
                                                         </Card.Body>
                                                     </Card>
                                                 )}
@@ -110,6 +149,24 @@ function TaskList() {
                     ))}
                 </div>
             </DragDropContext>
+
+            {/* Confirmation Modal for Deleting Task */}
+            <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete the task "{taskToDelete ? taskToDelete.title : ''}"?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDelete}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

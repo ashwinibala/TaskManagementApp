@@ -1,34 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { addTask } from '../features/tasks/tasksSlice';
+import { addTask, updateTask } from '../features/tasks/tasksSlice';
 
-const AddTaskForm = ({ show, handleClose }) => {
+const AddTaskForm = ({ show, handleClose, editingTask, refreshTasks }) => {
     const dispatch = useDispatch();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('Pending');
 
+    useEffect(() => {
+        if (editingTask) {
+            setTitle(editingTask.title);
+            setDescription(editingTask.description);
+            setStatus(editingTask.status);
+        } else {
+            setTitle('');
+            setDescription('');
+            setStatus('Pending');
+        }
+    }, [editingTask]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        const newTask = { title, description, status };
-        dispatch(addTask(newTask))
-            .unwrap()
-            .then(() => {
-                handleClose();
-                setTitle('');
-                setDescription('');
-                setStatus('Pending');
-            })
-            .catch((error) => {
-                console.error("Failed to add task:", error);
-            });
+        const taskData = { title, description, status };
+
+        if (editingTask) {
+            dispatch(updateTask({ ...taskData, id: editingTask.id }))
+                .unwrap()
+                .then(() => {
+                    handleClose();
+                    refreshTasks();
+                })
+                .catch((error) => console.error("Failed to update task:", error));
+        } else {
+            dispatch(addTask(taskData))
+                .unwrap()
+                .then(() => {
+                    handleClose();
+                    refreshTasks();
+                })
+                .catch((error) => console.error("Failed to add task:", error));
+        }
+
+        setTitle('');
+        setDescription('');
+        setStatus('Pending');
     };
 
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Add New Task</Modal.Title>
+                <Modal.Title>{editingTask ? 'Edit Task' : 'Add New Task'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
@@ -61,12 +84,13 @@ const AddTaskForm = ({ show, handleClose }) => {
                             onChange={(e) => setStatus(e.target.value)}
                         >
                             <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
+                            <option value="InProgress">In Progress</option>
                             <option value="Completed">Completed</option>
                         </Form.Control>
                     </Form.Group>
+                    <br />
                     <Button variant="primary" type="submit">
-                        Add Task
+                        {editingTask ? 'Update Task' : 'Add Task'}
                     </Button>
                 </Form>
             </Modal.Body>
