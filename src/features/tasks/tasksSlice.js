@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api';
 
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
-    const response = await api.get('/tasks', {
+    const response = await api.get('/api/v1/tasks', {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -11,12 +11,12 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
 });
 
 export const fetchTaskById = createAsyncThunk('tasks/fetchTaskById', async (taskId) => {
-    const response = await api.get(`/tasks/${taskId}`);
+    const response = await api.get(`/api/v1/tasks/${taskId}`);
     return response.data;
 });
 
 export const addTask = createAsyncThunk('tasks/addTask', async (taskData) => {
-    const response = await api.post('/tasks', taskData, {
+    const response = await api.post('/api/v1/tasks', taskData, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -25,7 +25,7 @@ export const addTask = createAsyncThunk('tasks/addTask', async (taskData) => {
 });
 
 export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId) => {
-    await api.delete(`/tasks/${taskId}`, {
+    await api.delete(`/api/v1/tasks/${taskId}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -34,7 +34,7 @@ export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId) =>
 });
 
 export const updateTaskStatus = createAsyncThunk('tasks/updateTaskStatus', async ({ id, status }) => {
-    const response = await api.put(`/tasks/${id}`, { status }, {
+    const response = await api.put(`/api/v1/tasks/${id}`, { status }, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -43,7 +43,7 @@ export const updateTaskStatus = createAsyncThunk('tasks/updateTaskStatus', async
 });
 
 export const updateTask = createAsyncThunk('tasks/updateTask', async ({ id, title, description, status }) => {
-    const response = await api.put(`/tasks/${id}`, { title, description, status }, {
+    const response = await api.put(`/api/v1/tasks/${id}`, { title, description, status }, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
