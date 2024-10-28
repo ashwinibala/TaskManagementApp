@@ -3,8 +3,11 @@ import api from '../../api';
 
 export const fetchTasks = createAsyncThunk(
     'tasks/fetchTasks',
-    async ({ page = 1, per_page = 10 } = {}, { getState }) => {
-        const response = await api.get(`/api/v1/tasks?page=${page}&per_page=${per_page}`, {
+    async ({ page = 1, per_page = 10, search = "", statuses = [] } = {}, { getState }) => {
+        const queryParam = search ? `&search=${encodeURIComponent(search)}` : "";
+        const statusesParam = statuses.length > 0 ? `&statuses=${encodeURIComponent(statuses.join(','))}` : "";
+
+        const response = await api.get(`/api/v1/tasks?page=${page}&per_page=${per_page}${queryParam}${statusesParam}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },

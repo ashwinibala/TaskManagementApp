@@ -89,7 +89,7 @@ const AddTaskForm = ({ show, handleClose, editingTask }) => {
                         <Form.Control
                             as="select"
                             value={priority}
-                            onChange={(e) => setStatus(e.target.value)}
+                            onChange={(e) => setPriority(e.target.value)}
                         >
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
