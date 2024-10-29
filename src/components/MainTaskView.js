@@ -6,7 +6,7 @@ import SimpleTaskList from './SimpleTaskList';
 
 const MainTaskView = () => {
     const [showAddTask, setShowAddTask] = useState(false);
-    const [view, setView] = useState('simple'); // Default view set to 'simple'
+    const [view, setView] = useState('simple');
 
     const handleClose = () => {
         setShowAddTask(false);
@@ -30,14 +30,14 @@ const MainTaskView = () => {
                     name="taskView"
                     value={view}
                     onChange={handleViewChange}
-                    style={{ display: 'flex', gap: '10px' }} // Optional: Add spacing between buttons
+                    style={{ display: 'flex', gap: '10px' }}
                 >
                     <ToggleButton id="tbg-simple" value="simple" style={{ width: 'auto' }}>
                         List View
                     </ToggleButton>
-                    <ToggleButton id="tbg-detailed" value="detailed" style={{ width: 'auto' }}>
+                    {/* <ToggleButton id="tbg-detailed" value="detailed" style={{ width: 'auto' }}>
                         Status View
-                    </ToggleButton>
+                    </ToggleButton> */}
                 </ToggleButtonGroup>
             </div>
 

@@ -2,50 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { addTask, updateTask } from '../features/tasks/tasksSlice';
+import { fetchTasks } from '../features/tasks/tasksSlice';
 
-const AddTaskForm = ({ show, handleClose, editingTask, refreshTasks }) => {
+
+const AddTaskForm = ({ show, handleClose, editingTask }) => {
     const dispatch = useDispatch();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState('Pending');
+    const [status, setStatus] = useState('Backlog');
+    const [priority, setPriority] = useState('Low');
 
     useEffect(() => {
         if (editingTask) {
             setTitle(editingTask.title);
             setDescription(editingTask.description);
             setStatus(editingTask.status);
+            setPriority(editingTask.priority);
         } else {
             setTitle('');
             setDescription('');
-            setStatus('Pending');
+            setStatus('Backlog');
+            setPriority('Low');
         }
     }, [editingTask]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const taskData = { title, description, status };
+        const taskData = { title, description, status, priority };
 
-        if (editingTask) {
-            dispatch(updateTask({ ...taskData, id: editingTask.id }))
-                .unwrap()
-                .then(() => {
-                    handleClose();
-                    refreshTasks();
-                })
-                .catch((error) => console.error("Failed to update task:", error));
-        } else {
-            dispatch(addTask(taskData))
-                .unwrap()
-                .then(() => {
-                    handleClose();
-                    refreshTasks();
-                })
-                .catch((error) => console.error("Failed to add task:", error));
-        }
+        const action = editingTask
+            ? updateTask({ ...taskData, id: editingTask.id })
+            : addTask(taskData);
 
-        setTitle('');
-        setDescription('');
-        setStatus('Pending');
+        dispatch(action)
+            .unwrap()
+            .then(() => {
+                handleClose();
+                dispatch(fetchTasks({ page: 1, perPage: 10 }));
+            })
+            .catch((error) => console.error(`Failed to ${editingTask ? 'update' : 'add'} task:`, error));
     };
 
     return (
@@ -73,7 +68,6 @@ const AddTaskForm = ({ show, handleClose, editingTask, refreshTasks }) => {
                             placeholder="Enter task description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            required
                         />
                     </Form.Group>
                     <Form.Group controlId="taskStatus">
@@ -83,9 +77,23 @@ const AddTaskForm = ({ show, handleClose, editingTask, refreshTasks }) => {
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
                         >
-                            <option value="Pending">Pending</option>
+                            <option value="Backlog">Backlog</option>
+                            <option value="Todo">To Do</option>
                             <option value="InProgress">In Progress</option>
                             <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </Form.Control>
+                    </Form.Group>
+                    <Form.Group controlId="taskPriority">
+                        <Form.Label>Priority</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                        >
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
                         </Form.Control>
                     </Form.Group>
                     <br />

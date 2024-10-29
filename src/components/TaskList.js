@@ -9,14 +9,19 @@ import AddTaskForm from './AddTaskForm';
 
 function TaskList() {
     const dispatch = useDispatch();
-    const { tasks, loading, error } = useSelector((state) => state.tasks);
+    const { tasks = [], loading, error, total } = useSelector((state) => state.tasks);
     const [editingTask, setEditingTask] = useState(null);
     const [showAddTask, setShowAddTask] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState(null);
 
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(total / itemsPerPage);
+
     const refreshTasks = () => {
-        dispatch(fetchTasks())
+        dispatch(fetchTasks({ page: currentPage, per_page: itemsPerPage }))
             .unwrap()
             .then(() => console.log("Tasks fetched successfully"))
             .catch((err) => console.error("Error fetching tasks:", err));
@@ -24,7 +29,7 @@ function TaskList() {
 
     useEffect(() => {
         refreshTasks();
-    }, [dispatch]);
+    }, [dispatch, currentPage]);
 
     const handleDelete = (id) => {
         dispatch(deleteTask(id))
@@ -76,6 +81,27 @@ function TaskList() {
         }
     };
 
+    // Pagination control handlers
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const renderPagination = () => {
+        const pages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(
+                <Button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={currentPage === i ? 'active' : ''}
+                >
+                    {i}
+                </Button>
+            );
+        }
+        return <div className="pagination">{pages}</div>;
+    };
+
     if (loading) {
         return <div className="text-center"><h3>Loading...</h3></div>;
     }
@@ -85,9 +111,11 @@ function TaskList() {
     }
 
     const groupedTasks = {
-        Pending: tasks.filter(task => task.status === 'Pending'),
+        Backlog: tasks.filter(task => task.status === 'Backlog'),
+        Todo: tasks.filter(task => task.status === 'Todo'),
         InProgress: tasks.filter(task => task.status === 'InProgress'),
         Completed: tasks.filter(task => task.status === 'Completed'),
+        Cancelled: tasks.filter(task => task.status === 'Cancelled'),
     };
 
     return (
@@ -131,7 +159,7 @@ function TaskList() {
                                                                 size={20}
                                                                 style={{ cursor: 'pointer', color: 'red' }}
                                                                 onClick={(e) => {
-                                                                    e.stopPropagation(); // Prevent triggering the edit task
+                                                                    e.stopPropagation();
                                                                     handleDeleteClick(task);
                                                                 }}
                                                                 title="Delete Task"
@@ -149,6 +177,11 @@ function TaskList() {
                     ))}
                 </div>
             </DragDropContext>
+
+            {/* Pagination Controls */}
+            <div className="pagination-controls text-center mt-4">
+                {renderPagination()}
+            </div>
 
             {/* Confirmation Modal for Deleting Task */}
             <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
