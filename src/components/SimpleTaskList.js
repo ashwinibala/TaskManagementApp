@@ -205,7 +205,15 @@ const SimpleTaskList = () => {
                 </Row>
             </Form>
 
-            <AddTaskForm show={showAddTask} handleClose={handleClose} editingTask={editingTask} />
+            <AddTaskForm
+                show={showAddTask}
+                handleClose={handleClose}
+                editingTask={editingTask}
+                currentPage={currentPage}
+                searchQuery={searchQuery}
+                selectedStatuses={selectedStatuses}
+                selectedPriorities={selectedPriorities}
+            />
 
             <div className="task-list">
                 {Array.isArray(pages[currentPage]) && pages[currentPage].length > 0 ? (

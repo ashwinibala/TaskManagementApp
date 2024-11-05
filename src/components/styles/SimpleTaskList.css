@@ -80,37 +80,38 @@
 
 /* Status Colors */
 .status-bubble.backlog {
-    background-color: #ffc107;
+    background-color: #FFD966;
 }
 
 .status-bubble.todo {
-    background-color: #007bff;
+    background-color: #4B9CD3;
 }
 
 .status-bubble.inprogress {
-    background-color: #28a745;
+    background-color: #81C784;
 }
 
 .status-bubble.completed {
-    background-color: #6c757d;
+    background-color: #B0BEC5;
 }
 
 .status-bubble.cancelled {
-    background-color: #dc3545;
+    background-color: #E57373;
 }
 
 /* Priority Colors */
 .priority-bubble.low {
-    background-color: #6c757d;
+    background-color: #B0BEC5;
 }
 
 .priority-bubble.medium {
-    background-color: #ffc107;
+    background-color: #FFD54F;
 }
 
 .priority-bubble.high {
-    background-color: #dc3545;
+    background-color: #EF5350;
 }
+
 
 /* Action Icons Styling */
 .action-icons .action-icon {
@@ -133,12 +134,12 @@
     cursor: pointer;
     margin: 0 5px;
     padding: 0.5rem;
-    color: #495057;
+    color: #0056b3;
     transition: background-color 0.3s;
 }
 
 .pagination-item.active {
-    background-color: #495057;
+    background-color: #0056b3;
     color: white;
     font-weight: bold;
 }

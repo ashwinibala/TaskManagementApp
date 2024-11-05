@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { addTask, updateTask } from '../features/tasks/tasksSlice';
 import { fetchTasks } from '../features/tasks/tasksSlice';
 
-const AddTaskForm = ({ show, handleClose, editingTask }) => {
+const AddTaskForm = ({ show, handleClose, editingTask, currentPage, searchQuery, selectedStatuses, selectedPriorities }) => {
     const dispatch = useDispatch();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -52,7 +52,13 @@ const AddTaskForm = ({ show, handleClose, editingTask }) => {
             .unwrap()
             .then(() => {
                 handleClose();
-                dispatch(fetchTasks({ page: 1, perPage: 10 }));
+                dispatch(fetchTasks({
+                    page: currentPage,
+                    per_page: 10,
+                    search: searchQuery,
+                    statuses: selectedStatuses,
+                    priorities: selectedPriorities
+                }));
             })
             .catch((error) => console.error(`Failed to ${editingTask ? 'update' : 'add'} task:`, error));
     };
