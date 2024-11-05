@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, deleteTask } from '../features/tasks/tasksSlice';
-import { Button, Card, Modal, Form, Col, Row } from 'react-bootstrap';
+import { Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import AddTaskForm from './AddTaskForm';
-import { FaPlus, FaTimes } from 'react-icons/fa';
-import debounce from 'lodash.debounce';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import Select from 'react-select';
+import './styles/SimpleTaskList.css';
 
 const SimpleTaskList = () => {
     const dispatch = useDispatch();
@@ -16,6 +16,7 @@ const SimpleTaskList = () => {
     const [taskToDelete, setTaskToDelete] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [selectedPriorities, setSelectedPriorities] = useState([]);
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -27,31 +28,30 @@ const SimpleTaskList = () => {
         { value: 'Cancelled', label: 'Cancelled' },
     ];
 
+    const priorityOptions = [
+        { value: 'Low', label: 'Low' },
+        { value: 'Medium', label: 'Medium' },
+        { value: 'High', label: 'High' },
+    ];
+
     useEffect(() => {
         dispatch(fetchTasks({
             page: currentPage,
             per_page: itemsPerPage,
-            search: searchQuery,
-            statuses: selectedStatuses
-        }),
-        );
-    }, [dispatch, currentPage, searchQuery, selectedStatuses]);
+            statuses: selectedStatuses,
+            priorities: selectedPriorities
+        }));
+    }, [dispatch, currentPage, selectedStatuses, selectedPriorities]);
 
-    const fetchTasksDebounced = debounce((query) => {
+    const handleSearch = () => {
         setCurrentPage(1);
-        dispatch(fetchTasks({ page: 1, per_page: itemsPerPage, search: query, statuses: selectedStatuses }));
-    }, 1000);
-
-    const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-        fetchTasksDebounced(value);
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            fetchTasksDebounced.flush();
-        }
+        dispatch(fetchTasks({
+            page: 1,
+            per_page: itemsPerPage,
+            search: searchQuery,
+            statuses: selectedStatuses,
+            priorities: selectedPriorities
+        }));
     };
 
     const handleClose = () => {
@@ -68,7 +68,7 @@ const SimpleTaskList = () => {
         dispatch(deleteTask(id))
             .unwrap()
             .then(() => {
-                dispatch(fetchTasks({ page: currentPage, per_page: itemsPerPage, search: searchQuery, statuses: selectedStatuses }));
+                dispatch(fetchTasks({ page: currentPage, per_page: itemsPerPage, search: searchQuery, statuses: selectedStatuses, priorities: selectedPriorities }));
                 setShowDeleteConfirm(false);
             })
             .catch((error) => console.error("Failed to delete task:", error));
@@ -96,18 +96,45 @@ const SimpleTaskList = () => {
                 <span
                     key={i}
                     onClick={() => handlePageChange(i)}
-                    style={{
-                        cursor: 'pointer',
-                        margin: '0 5px',
-                        fontWeight: currentPage === i ? 'bold' : 'normal',
-                        textDecoration: currentPage === i ? 'underline' : 'none'
-                    }}
+                    className={`pagination-item ${currentPage === i ? 'active' : ''}`}
                 >
                     {i}
                 </span>
             );
         }
-        return <div className="pagination text-center mt-3">{pages}</div>;
+
+        const start = (currentPage - 1) * itemsPerPage + 1;
+        const end = Math.min(start + itemsPerPage - 1, total);
+
+        return (
+            <div className="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Showing {start} to {end} out of {total} tasks
+                </div>
+                <div className="d-flex align-items-center">
+                    <div className="pagination">
+                        {pages}
+                    </div>
+                    {totalPages > 5 && currentPage < totalPages && (
+                        <button
+                            className="btn btn-link ms-2"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage >= totalPages}
+                        >
+                            Next
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const truncateTitleText = (text) => {
+        return text.length > 20 ? text.substring(0, 20) + '...' : text;
+    };
+
+    const truncateDescriptionText = (text) => {
+        return text.length > 50 ? text.substring(0, 50) + '...' : text;
     };
 
     if (loading) return <div className="text-center"><h3>Loading...</h3></div>;
@@ -117,14 +144,27 @@ const SimpleTaskList = () => {
     return (
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="text-center">
-                    Task List [{total}]
-                </h2>
-                <FaPlus
-                    size={30}
-                    style={{ cursor: 'pointer', color: '#007bff' }}
-                    onClick={() => setShowAddTask(true)}
-                />
+                <div className="d-flex align-items-center">
+                    <h3 className="text-center me-4">Task List</h3>
+                    <Button
+                        variant="primary"
+                        className="add-task-btn"
+                        onClick={() => setShowAddTask(true)}
+                    >New </Button>
+                </div>
+                <div className="search-container">
+                    <Form.Group as={Col} md={10} className="mb-0 me-2">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search tasks..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </Form.Group>
+                    <button className="btn btn-primary go-button" onClick={handleSearch}>
+                        Go
+                    </button>
+                </div>
             </div>
 
             <Form className="mb-4">
@@ -143,100 +183,85 @@ const SimpleTaskList = () => {
                                 setSelectedStatuses(values);
                                 setCurrentPage(1);
                             }}
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    boxShadow: 'none',
-                                    borderColor: '#ced4da',
-                                    '&:hover': {
-                                        borderColor: '#80bdff',
-                                    },
-                                }),
-                                multiValue: (provided) => ({
-                                    ...provided,
-                                    backgroundColor: '#e2e6ea',
-                                }),
-                                multiValueLabel: (provided) => ({
-                                    ...provided,
-                                    color: '#495057',
-                                }),
-                                multiValueRemove: (provided) => ({
-                                    ...provided,
-                                    color: '#dc3545',
-                                    '&:hover': {
-                                        backgroundColor: '#f8d7da',
-                                        color: '#721c24',
-                                    },
-                                }),
-                            }}
                         />
                     </Form.Group>
 
-                    <Form.Group as={Col} md={7} className="mb-3">
-                        <Form.Label>Search Tasks</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search tasks..."
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            onKeyPress={handleKeyPress}
-                            style={{
-                                borderRadius: '0.375rem',
-                                border: '1px solid #ced4da',
-                                padding: '10px',
+                    <Form.Group as={Col} md={5} className="mb-3">
+                        <Form.Label>Filter by Priority</Form.Label>
+                        <Select
+                            isMulti
+                            name="priorities"
+                            options={priorityOptions}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            value={priorityOptions.filter(option => selectedPriorities.includes(option.value))}
+                            onChange={(selected) => {
+                                const values = selected ? selected.map(option => option.value) : [];
+                                setSelectedPriorities(values);
+                                setCurrentPage(1);
                             }}
                         />
                     </Form.Group>
                 </Row>
             </Form>
 
-            <AddTaskForm show={showAddTask} handleClose={handleClose} editingTask={editingTask} />
+            <AddTaskForm
+                show={showAddTask}
+                handleClose={handleClose}
+                editingTask={editingTask}
+                currentPage={currentPage}
+                searchQuery={searchQuery}
+                selectedStatuses={selectedStatuses}
+                selectedPriorities={selectedPriorities}
+            />
 
             <div className="task-list">
                 {Array.isArray(pages[currentPage]) && pages[currentPage].length > 0 ? (
-                    pages[currentPage].map((task) => (
-                        <Card
-                            className="mb-3 task-card"
-                            key={task.id}
-                            onClick={() => handleEditTask(task)}
-                            style={{
-                                cursor: 'pointer',
-                                borderRadius: '8px',
-                                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                                borderLeft: `5px solid ${task.status === 'Completed' ? '#28a745' : task.status === 'InProgress' ? '#ffc107' : task.status === 'Cancelled' ? '#dc3545' : '#007bff'}`,
-                            }}
-                        >
-                            <Card.Body className="d-flex justify-content-between align-items-center">
-                                <div style={{ flexGrow: 1 }}>
-                                    <Card.Title style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>
-                                        {task.title}
-                                    </Card.Title>
-                                    <Card.Text style={{ color: '#6c757d', marginBottom: '8px' }}>
-                                        {task.description}
-                                    </Card.Text>
-                                    <div className="d-flex align-items-center">
-                                        <Card.Subtitle className="me-3" style={{ color: '#495057', fontSize: '0.9rem' }}>
-                                            Status: <strong>{task.status}</strong>
-                                        </Card.Subtitle>
-                                        <Card.Subtitle style={{ color: '#495057', fontSize: '0.9rem' }}>
-                                            Priority: <strong>{task.priority}</strong>
-                                        </Card.Subtitle>
-                                    </div>
-                                </div>
-                                <FaTimes
-                                    size={20}
-                                    style={{ cursor: 'pointer', color: '#dc3545' }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteClick(task);
-                                    }}
-                                    title="Delete Task"
-                                />
-                            </Card.Body>
-                        </Card>
-                    ))
+                    <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pages[currentPage].map((task) => (
+                                <tr key={task.id}>
+                                    <td><strong>TASK-{task.id}</strong></td>
+                                    <td title={task.title}>{truncateTitleText(task.title)}</td>
+                                    <td title={task.description}>{truncateDescriptionText(task.description)}</td>
+                                    <td>
+                                        <span className={`status-bubble ${task.status.toLowerCase()}`}>
+                                            {task.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={`priority-bubble ${task.priority.toLowerCase()}`}>
+                                            {task.priority}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="action-icons">
+                                            <FaEdit
+                                                className="action-icon"
+                                                onClick={() => handleEditTask(task)}
+                                            />
+                                            <FaTrash
+                                                className="action-icon ms-2"
+                                                onClick={() => handleDeleteClick(task)}
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 ) : (
-                    <div>No tasks available</div>
+                    <div className="no-tasks-message">No tasks found.</div>
                 )}
             </div>
 
@@ -244,10 +269,10 @@ const SimpleTaskList = () => {
 
             <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
+                    <Modal.Title>Confirm Delete</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you want to delete the task "{taskToDelete ? taskToDelete.title : ''}"?
+                    Are you sure you want to delete task <strong>{taskToDelete ? taskToDelete.title : ''}</strong>?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>

@@ -1,0 +1,186 @@
+/* Container */
+.container {
+    margin-top: 1.5rem;
+}
+
+/* Task List Styling */
+.task-list {
+    margin: 1.5rem 0;
+}
+
+.add-task-btn {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    width: 60px;
+}
+
+.add-task-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    color: #e0e0e0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    color: #343a40;
+    font-weight: bold;
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr {
+    background-color: #495057;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: background-color 0.3s;
+}
+
+.table tbody tr:hover {
+    background-color: #333;
+}
+
+.table tbody td {
+    padding: 0.75rem;
+}
+
+/* Task Title and Description Truncation */
+.task-title,
+.task-desc {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Status and Priority Bubbles */
+.status-bubble,
+.priority-bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #ffffff;
+    width: 80px;
+}
+
+/* Status Colors */
+.status-bubble.backlog {
+    background-color: #FFD966;
+}
+
+.status-bubble.todo {
+    background-color: #4B9CD3;
+}
+
+.status-bubble.inprogress {
+    background-color: #81C784;
+}
+
+.status-bubble.completed {
+    background-color: #B0BEC5;
+}
+
+.status-bubble.cancelled {
+    background-color: #E57373;
+}
+
+/* Priority Colors */
+.priority-bubble.low {
+    background-color: #B0BEC5;
+}
+
+.priority-bubble.medium {
+    background-color: #FFD54F;
+}
+
+.priority-bubble.high {
+    background-color: #EF5350;
+}
+
+
+/* Action Icons Styling */
+.action-icons .action-icon {
+    color: #6c757d;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.action-icons .action-icon:hover {
+    color: #343a40;
+}
+
+/* Pagination Styling */
+.pagination {
+    margin-left: auto;
+    display: flex;
+}
+
+.pagination-item {
+    cursor: pointer;
+    margin: 0 5px;
+    padding: 0.5rem;
+    color: #0056b3;
+    transition: background-color 0.3s;
+}
+
+.pagination-item.active {
+    background-color: #0056b3;
+    color: white;
+    font-weight: bold;
+}
+
+/* Go Button Styling */
+.btn-auto-width {
+    width: auto;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+}
+
+/* No Tasks Message */
+.no-tasks-message {
+    padding: 1rem;
+    color: #6c757d;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Container for search bar and button */
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.search-input {
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    outline: none;
+    height: 2.5rem;
+}
+
+.go-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+}

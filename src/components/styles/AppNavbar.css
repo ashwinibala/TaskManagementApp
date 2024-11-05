@@ -1,0 +1,42 @@
+/* Custom Navbar Styles */
+.navbar-custom {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
+}
+
+.navbar-brand {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #007bff;
+    transition: color 0.3s;
+}
+
+.navbar-brand:hover {
+    color: #0056b3;
+}
+
+.account-icon {
+    display: flex;
+    align-items: center;
+    color: #495057;
+    font-size: 1.25rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.logout-item {
+    color: #dc3545;
+}
+
+body {
+    padding-top: 70px;
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}
