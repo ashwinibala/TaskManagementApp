@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, deleteTask } from '../features/tasks/tasksSlice';
-import { Button, Card, Modal, Form, Col, Row } from 'react-bootstrap';
+import { Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import AddTaskForm from './AddTaskForm';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import { Tooltip } from 'bootstrap';
-import debounce from 'lodash.debounce';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import Select from 'react-select';
 import './styles/SimpleTaskList.css';
 
@@ -40,33 +38,10 @@ const SimpleTaskList = () => {
         dispatch(fetchTasks({
             page: currentPage,
             per_page: itemsPerPage,
-            search: searchQuery,
             statuses: selectedStatuses,
             priorities: selectedPriorities
         }));
-    }, [dispatch, currentPage, , selectedStatuses, selectedPriorities]);
-
-    const getBorderColor = (status) => {
-        switch (status) {
-            case 'Backlog':
-                return '#ffc107';
-            case 'Todo':
-                return '#007bff';
-            case 'InProgress':
-                return '#28a745';
-            case 'Completed':
-                return '#6c757d';
-            case 'Cancelled':
-                return '#dc3545';
-            default:
-                return '#000';
-        }
-    };
-
-    const fetchTasksDebounced = debounce((query) => {
-        setCurrentPage(1);
-        dispatch(fetchTasks({ page: 1, per_page: itemsPerPage, search: query, statuses: selectedStatuses, priorities: selectedPriorities }));
-    }, 1000);
+    }, [dispatch, currentPage, selectedStatuses, selectedPriorities]);
 
     const handleSearch = () => {
         setCurrentPage(1);
@@ -170,13 +145,12 @@ const SimpleTaskList = () => {
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="d-flex align-items-center">
-                    <h2 className="text-center">Task List</h2>
-                    <FaPlus
-                        size={30}
-                        color="#495057"
-                        className="add-task-icon ms-2"
+                    <h3 className="text-center me-4">Task List</h3>
+                    <Button
+                        variant="primary"
+                        className="add-task-btn"
                         onClick={() => setShowAddTask(true)}
-                    />
+                    >New </Button>
                 </div>
                 <div className="search-container">
                     <Form.Group as={Col} md={10} className="mb-0 me-2">
@@ -249,7 +223,7 @@ const SimpleTaskList = () => {
                         <tbody>
                             {pages[currentPage].map((task) => (
                                 <tr key={task.id}>
-                                    <td>TASK-{task.id}</td>
+                                    <td><strong>TASK-{task.id}</strong></td>
                                     <td title={task.title}>{truncateTitleText(task.title)}</td>
                                     <td title={task.description}>{truncateDescriptionText(task.description)}</td>
                                     <td>

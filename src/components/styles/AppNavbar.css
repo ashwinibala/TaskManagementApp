@@ -2,10 +2,11 @@
 .navbar-custom {
     background-color: #f8f9fa;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
 }
 
 .navbar-brand {
-    font-size: 1.5rem;
+    font-size: 4rem;
     font-weight: bold;
     color: #007bff;
     transition: color 0.3s;
@@ -15,31 +16,27 @@
     color: #0056b3;
 }
 
-.nav-item {
-    color: #343a40;
-    margin-right: 20px;
-}
-
-.btn-logout {
-    background-color: #dc3545;
-    color: white;
+.account-icon {
+    display: flex;
+    align-items: center;
+    color: #495057;
+    font-size: 1.25rem;
+    cursor: pointer;
     border: none;
-    border-radius: 0.25rem;
-    padding: 0.375rem 0.75rem;
-    transition: background-color 0.3s;
+    background: none;
 }
 
-.btn-logout:hover {
-    background-color: #c82333;
+.logout-item {
+    color: #dc3545;
+}
+
+body {
+    padding-top: 70px;
 }
 
 /* Responsive Styles */
 @media (max-width: 576px) {
     .navbar-brand {
         font-size: 1.25rem;
-    }
-
-    .nav-item {
-        margin-right: 10px;
     }
 }

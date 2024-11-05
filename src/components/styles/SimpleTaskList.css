@@ -8,6 +8,21 @@
     margin: 1.5rem 0;
 }
 
+.add-task-btn {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    width: 60px;
+}
+
+.add-task-btn:hover {
+    background-color: #0056b3;
+}
+
 /* Table Styling */
 .table {
     width: 100%;
@@ -60,7 +75,7 @@
     font-size: 0.8rem;
     font-weight: bold;
     color: #ffffff;
-    min-width: 60px;
+    width: 80px;
 }
 
 /* Status Colors */
